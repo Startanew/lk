@@ -1,0 +1,2656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>轮廓抖音商城数据分析报告</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #1a3a8f;
+            --primary-light: #4a6bca;
+            --secondary-blue: #283593;
+            --accent-orange: #ff6f00;
+            --success-green: #43a047;
+            --warning-yellow: #ffb300;
+            --danger-red: #e53935;
+            --light-bg: #f5f7fa;
+            --dark-text: #2c3e50;
+            --card-bg: #ffffff;
+            --border-color: #eaeff5;
+            --gray-text: #6c757d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f4f8 0%, #e3e8f0 100%);
+            color: var(--dark-text);
+            line-height: 1.7;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+            padding: 50px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        h1 {
+            font-size: 3.2rem;
+            margin-bottom: 15px;
+            text-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            font-weight: 800;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            margin-bottom: 25px;
+            font-weight: 300;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            padding: 14px 28px;
+            margin: 0 8px 15px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px);
+        }
+        
+        .tab-btn.active {
+            background: white;
+            color: var(--primary-blue);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .section {
+            padding: 50px 40px;
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+            animation: fadeIn 0.8s ease;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .section-title {
+            font-size: 2.2rem;
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--gray-text);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-light), var(--primary-blue));
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 40px rgba(41, 128, 185, 0.18);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f4f8;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+        
+        .card-content {
+            height: 380px;
+            position: relative;
+        }
+        
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin: 30px 0 40px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 16px;
+            padding: 30px 25px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #edf2f9;
+        }
+        
+        .kpi-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--primary-light), var(--primary-blue));
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(41, 128, 185, 0.2);
+        }
+        
+        .kpi-value {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            margin: 25px 0 15px;
+            text-shadow: 0 3px 5px rgba(0,0,0,0.1);
+        }
+        
+        .kpi-label {
+            color: #5c6bc0;
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+        
+        .highlight {
+            color: var(--accent-orange);
+            font-weight: 700;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .highlight::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, var(--accent-orange), #ff8f00);
+            border-radius: 2px;
+        }
+        
+        .highlight-bg {
+            background-color: #fff9db;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #e67700;
+        }
+        
+        .insights {
+            background: linear-gradient(135deg, #ffffff 0%, #fafbff 100%);
+            border-radius: 18px;
+            padding: 40px;
+            margin: 40px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eef2f7;
+        }
+        
+        .insights-title {
+            font-size: 1.9rem;
+            color: var(--primary-blue);
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid #f0f4f8;
+            font-weight: 800;
+            position: relative;
+        }
+        
+        .insights-title::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 150px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-light), var(--primary-blue));
+            border-radius: 2px;
+        }
+        
+        .key-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 28px;
+        }
+        
+        .point-card {
+            background: #f8f9ff;
+            border-left: 5px solid var(--primary-light);
+            padding: 28px;
+            border-radius: 0 14px 14px 0;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .point-card:hover {
+            transform: translateX(8px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .point-title {
+            font-weight: 700;
+            margin-bottom: 18px;
+            color: var(--primary-blue);
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .point-title::before {
+            content: "•";
+            color: var(--accent-orange);
+            font-size: 2.5rem;
+            margin-right: 12px;
+            line-height: 0;
+        }
+        
+        .point-card p {
+            color: #546e7a;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 35px 0;
+            color: var(--primary-light);
+            font-size: 1.05rem;
+            margin-top: 30px;
+            border-top: 1px solid #eef2f7;
+            font-weight: 600;
+            background: #f8fbff;
+        }
+        
+        .data-highlight {
+            background: linear-gradient(to right, var(--primary-light), var(--primary-blue));
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .summary-card h3 {
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .summary-card .value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--dark-text);
+            margin: 15px 0;
+        }
+        
+        .summary-card .description {
+            color: var(--gray-text);
+            font-size: 0.95rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .data-table th {
+            background-color: var(--primary-blue);
+            color: white;
+            text-align: left;
+            padding: 12px 15px;
+        }
+        
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table tr:nth-child(even) {
+            background-color: var(--light-bg);
+        }
+        
+        .data-table tr:hover {
+            background-color: #e8f4fc;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 1200px) {
+            .dashboard, .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .dashboard, .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-content {
+                height: 350px;
+            }
+            
+            h1 {
+                font-size: 2.4rem;
+            }
+            
+            .section-title {
+                font-size: 1.9rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .tab-btn {
+                width: 90%;
+                margin-bottom: 10px;
+            }
+            
+            .kpi-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .section {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>轮廓抖音商城数据分析报告</h1>
+                <div class="subtitle">多维度数据分析与商业洞察 | 基于抖音商城数据深度挖掘</div>
+                
+                <div class="nav-tabs">
+                    <button class="tab-btn active" data-tab="promotion">大促活动分析</button>
+                    <button class="tab-btn" data-tab="member">会员数据分析</button>
+                    <button class="tab-btn" data-tab="product">商品卡分析</button>
+                    <button class="tab-btn" data-tab="channel">交易载体分析</button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 大促活动数据分析 -->
+        <section id="promotion-section" class="section active">
+            <div class="section-header">
+                <h2 class="section-title">大促活动数据分析</h2>
+                <div class="section-subtitle">基于抖音商城2024-2025年大型促销活动数据深度分析</div>
+            </div>
+            
+            <div class="kpi-container">
+                <div class="kpi-card">
+                    <div class="kpi-label">总成交金额大促收益</div>
+                    <div class="kpi-value">¥701万</div>
+                    <div class="kpi-subtitle">较普通活动提升32.7%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">总商品曝光次数</div>
+                    <div class="kpi-value">5714万</div>
+                    <div class="kpi-subtitle">大促期间曝光量巨大</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">平均转化率</div>
+                    <div class="kpi-value">1.68%</div>
+                    <div class="kpi-subtitle">高于行业平均水平</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">总报名商品数</div>
+                    <div class="kpi-value">9,533</div>
+                    <div class="kpi-subtitle">商品参与度较高</div>
+                </div>
+            </div>
+            
+            <div class="dashboard">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">各活动成交金额大促收益对比</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">活动曝光与成交金额关系</h3>
+                    </div>
+                    <div class="card-content">
+                        <div id="exposureRevenueChart" style="width: 100%; height: 100%;"></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">店铺大促收益贡献分布</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="storeContributionChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">点击率与转化率趋势分析</h3>
+                    </div>
+                    <div class="card-content">
+                        <div id="ctrChart" style="width: 100%; height: 100%;"></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">店铺大促收益排行榜</h3>
+                    </div>
+                    <div class="card-content">
+                        <div id="storeRankingChart" style="width: 100%; height: 100%;"></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">活动效果综合对比</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="insights">
+                <h3 class="insights-title">关键数据分析洞察</h3>
+                <div class="key-points">
+                    <div class="point-card">
+                        <div class="point-title">头部店铺效应分析</div>
+                        <p><span class="data-highlight">轮廓服饰专营店、轮廓女装旗舰店和吉丘古儿旗舰店</span>贡献了超过65%的大促收益，显示头部店铺在大促活动中的主导作用。其中轮廓服饰专营店在2025年38好物节单场活动收益达<span class="highlight">53.8万元</span>，表现最为突出。</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">活动效果差异分析</div>
+                        <p>2024年双11好物节和2025年38好物节表现最佳，成交金额分别达到<span class="highlight">137.2万</span>和<span class="highlight">109.0万</span>。而2025年浪漫情人节活动表现较弱，<span class="highlight">大促收益为0</span>，需分析具体原因。</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">转化效率分析</div>
+                        <p>2025年38好物节以<span class="highlight">55万次</span>曝光创造<span class="highlight">109万</span>收益，曝光转化效率最高。而2025年618好物节虽曝光量达<span class="highlight">689万次</span>，但收益仅<span class="highlight">28.8万</span>，转化效率较低。</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">商品参与度分析</div>
+                        <p>2025年618好物节报名商品数最多（<span class="highlight">1314件</span>），但收益表现一般。而2024年双11活动仅<span class="highlight">80件</span>商品参与却创造了<span class="highlight">137.2万</span>收益，显示商品质量比数量更重要。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 会员数据分析 -->
+        <section id="member-section" class="section">
+            <div class="section-header">
+                <h2 class="section-title">会员数据分析</h2>
+                <div class="section-subtitle">基于2501-2505月份各店铺会员数据的综合分析与洞察</div>
+            </div>
+            
+            <div class="kpi-container">
+                <div class="kpi-card">
+                    <div class="kpi-label">会员成交总金额</div>
+                    <div class="kpi-value">¥26.06M</div>
+                    <div class="kpi-subtitle">5个月增长 <span class="highlight">11.0%</span></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">会员总数量</div>
+                    <div class="kpi-value">144,627</div>
+                    <div class="kpi-subtitle">月均增长 <span class="highlight">4.5%</span></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">新增会员数量</div>
+                    <div class="kpi-value">7,631</div>
+                    <div class="kpi-subtitle">新会员成交率 <span class="highlight">45.5%</span></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">开卡礼引导成交额</div>
+                    <div class="kpi-value">¥3.74M</div>
+                    <div class="kpi-subtitle">占总成交额 <span class="highlight">14.3%</span></div>
+                </div>
+            </div>
+            
+            <div class="dashboard">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">各店铺会员成交金额对比</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="memberSalesChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">会员数量与新增会员对比</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="membersChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">会员成交金额占比分析</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="ratioChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">开卡礼引导成交金额分析</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="giftChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">积分总量与会员数量关系</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="pointsChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">新会员转化率分析</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="conversionRateChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="insights">
+                <h3 class="insights-title">关键数据分析洞察</h3>
+                <div class="key-points">
+                    <div class="point-card">
+                        <div class="point-title">头部店铺表现突出</div>
+                        <p><span class="data-highlight">轮廓女装旗舰店</span>在会员成交金额（¥6.34M）和会员数量（8,259人）上均处于领先地位，贡献了整体业绩的24.3%。</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">高增长潜力店铺</div>
+                        <p><span class="data-highlight">轮廓服饰专营店</span>的新会员成交人数最高（1,019人），新会员转化率达51.2%，显示强大的新客转化能力。</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">会员价值提升明显</div>
+                        <p><span class="data-highlight">吉丘古儿旗舰店</span>的会员成交金额占比达68.8%（平均值），表明该店铺会员消费贡献度最高。</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">开卡礼效果显著</div>
+                        <p><span class="data-highlight">轮廓服饰专营店</span>的开卡礼引导成交金额最高（¥1.27M），占该店总成交额的20.9%，促销效果最佳。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 商品卡数据分析 -->
+        <section id="product-section" class="section">
+            <div class="section-header">
+                <h2 class="section-title">商品卡核心数据分析</h2>
+                <div class="section-subtitle">店铺维度数据对比与可视化分析 | 2503-2505月数据</div>
+            </div>
+            
+            <div class="kpi-container">
+                <div class="kpi-card">
+                    <div class="kpi-label">总成交金额</div>
+                    <div class="kpi-value">¥5.65M</div>
+                    <div class="kpi-subtitle">3个月数据汇总</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">最高单月成交额</div>
+                    <div class="kpi-value">¥624.6K</div>
+                    <div class="kpi-subtitle">轮廓女装旗舰店 (2503)</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">最高客单价</div>
+                    <div class="kpi-value">¥1,684</div>
+                    <div class="kpi-subtitle">轮廓服饰专营店 (2503)</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">最高转化率</div>
+                    <div class="kpi-value">6.27%</div>
+                    <div class="kpi-subtitle">轮廓服饰专营店 (2505)</div>
+                </div>
+            </div>
+            
+            <div class="dashboard">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">各店铺成交金额对比 (¥)</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="productSalesChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">月度成交金额趋势</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="salesTrendChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">各店铺客单价对比 (¥)</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">点击-成交转化率对比 (%)</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="productConversionChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">商品卡点击率对比 (%)</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="clickRateChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">转化率与成交金额关系</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="conversionSalesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="insights">
+                <h3 class="insights-title">关键发现与洞察</h3>
+                <div class="key-points">
+                    <div class="point-card">
+                        <div class="point-title">头部店铺表现</div>
+                        <p>轮廓女装旗舰店以 <span class="highlight">¥1,490,524</span> 的总成交额领先，其次是轮廓服饰专营店（¥1,256,035）。这两家店铺贡献了总成交额的48.6%。</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">月度趋势变化</div>
+                        <p>大多数店铺在2504月出现业绩下滑，但在2505月有所回升。商品卡点击率整体呈现上升趋势，平均增长<span class="highlight">12.3%</span>。</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">转化率洞察</div>
+                        <p>轮廓服饰专营店拥有最高的点击-成交转化率（6.27%），是行业平均水平的2.5倍。高转化率直接贡献了其优异的销售业绩。</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">核心策略建议</div>
+                        <p>针对客单价较低的店铺推出搭配销售策略，曝光量不足的店铺应加强商品卡优化，转化率低的店铺需优化商品详情页和购买流程。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 交易载体分析 -->
+        <section id="channel-section" class="section">
+            <div class="section-header">
+                <h2 class="section-title">交易载体分析</h2>
+                <div class="section-subtitle">基于2024年6月至2025年5月期间各店铺在不同交易载体上的销售数据深度分析</div>
+            </div>
+            
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h3>总交易金额</h3>
+                    <div class="value">¥1.28亿</div>
+                    <p class="description">12个月交易总额</p>
+                </div>
+                <div class="summary-card">
+                    <h3>商品卡交易额</h3>
+                    <div class="value">¥1,560万</div>
+                    <p class="description">占交易总额的12.2%</p>
+                </div>
+                <div class="summary-card">
+                    <h3>直播交易额</h3>
+                    <div class="value">¥1.08亿</div>
+                    <p class="description">占交易总额的84.4%</p>
+                </div>
+                <div class="summary-card">
+                    <h3>店铺数量</h3>
+                    <div class="value">8家</div>
+                    <p class="description">活跃店铺</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">商品卡交易趋势分析</h3>
+                </div>
+                <div class="card-content">
+                    <canvas id="productCardTrendChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="insights">
+                <h3 class="insights-title">核心洞察</h3>
+                <div class="key-points">
+                    <div class="point-card">
+                        <div class="point-title">整体增长趋势</div>
+                        <p>商品卡交易额整体呈<span class="highlight-bg">上升趋势</span>，从2024年6月的¥123万增长到2025年5月的¥158万</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">季度表现分析</div>
+                        <p>2025年3月达到<span class="highlight-bg">峰值¥184万</span>，主要受轮廓服饰专营店大幅增长驱动</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">店铺表现亮点</div>
+                        <p>轮廓女装旗舰店在2025年1月商品卡交易额达到<span class="highlight-bg">¥58.1万</span>，为单店月度最高</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">季度表现</div>
+                        <p>商品卡交易在<span class="highlight-bg">第一季度表现最佳</span>（1-3月），占全年商品卡交易额的35%</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">各交易载体金额占比</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="channelShareChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">直播与商品卡交易趋势对比</h3>
+                    </div>
+                    <div class="card-content">
+                        <canvas id="channelTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="insights">
+                <h3 class="insights-title">载体表现分析</h3>
+                <div class="key-points">
+                    <div class="point-card">
+                        <div class="point-title">渠道主导分析</div>
+                        <p><span class="data-highlight">直播</span>是绝对主导的交易载体，占总交易额的84.4%</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">增长趋势</div>
+                        <p>商品卡是第二大交易渠道，占比12.2%，且份额<span class="data-highlight">持续增长</span></p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">其他渠道表现</div>
+                        <p>图文和短视频贡献较小，分别仅占0.03%和0.07%</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">店铺渠道优势</div>
+                        <p>轮廓旗舰店在图文载体上表现突出，占该载体总交易额的62%</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">主要店铺商品卡交易额趋势</h3>
+                </div>
+                <div class="card-content">
+                    <canvas id="storeComparisonChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">店铺商品卡表现对比</h3>
+                </div>
+                <div class="card-content">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>店铺名称</th>
+                                <th>商品卡总交易额</th>
+                                <th>月均交易额</th>
+                                <th>占比</th>
+                                <th>峰值月份</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>轮廓女装旗舰店</td>
+                                <td>¥4,582,978.94</td>
+                                <td>¥381,914.91</td>
+                                <td>29.4%</td>
+                                <td>2025年1月 (¥581,545.01)</td>
+                            </tr>
+                            <tr>
+                                <td>轮廓服饰专营店</td>
+                                <td>¥3,037,813.36</td>
+                                <td>¥253,151.11</td>
+                                <td>19.5%</td>
+                                <td>2025年3月 (¥455,106.70)</td>
+                            </tr>
+                            <tr>
+                                <td>轮廓旗舰店</td>
+                                <td>¥2,975,109.50</td>
+                                <td>¥247,925.79</td>
+                                <td>19.1%</td>
+                                <td>2024年12月 (¥326,447.10)</td>
+                            </tr>
+                            <tr>
+                                <td>吉丘古儿旗舰店</td>
+                                <td>¥2,552,057.38</td>
+                                <td>¥212,671.45</td>
+                                <td>16.4%</td>
+                                <td>2024年12月 (¥438,057.51)</td>
+                            </tr>
+                            <tr>
+                                <td>轮廓平跃女装专卖店</td>
+                                <td>¥1,714,354.06</td>
+                                <td>¥142,862.84</td>
+                                <td>11.0%</td>
+                                <td>2025年3月 (¥182,890.97)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">商品卡交易额月度分布 (季节性分析)</h3>
+                </div>
+                <div class="card-content">
+                    <canvas id="seasonalChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="insights">
+                <h3 class="insights-title">季节趋势洞察</h3>
+                <div class="key-points">
+                    <div class="point-card">
+                        <div class="point-title">季度表现分析</div>
+                        <p>商品卡交易在<span class="data-highlight">第一季度表现最强</span>（1-3月），平均月度交易额达¥172万</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">次高峰分析</div>
+                        <p>第四季度（10-12月）是第二高峰，平均月度交易额¥152万</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">低峰期分析</div>
+                        <p>夏季月份（6-8月）商品卡交易相对较低，平均月度交易额¥129万</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">月度峰值</div>
+                        <p>2025年3月是所有月份中商品卡交易<span class="data-highlight">最高的月份</span>，达到¥184万</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="insights">
+                <h3 class="insights-title">结论与建议</h3>
+                <div class="key-points">
+                    <div class="point-card">
+                        <div class="point-title">主要结论</div>
+                        <p>商品卡作为第二大交易渠道，贡献了12.2%的交易额，且呈现稳定增长趋势</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">店铺表现</div>
+                        <p>轮廓女装旗舰店、轮廓服饰专营店和轮廓旗舰店是商品卡交易表现最佳的三家店铺</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">时间分布</div>
+                        <p>商品卡交易在第一季度表现最佳，尤其在1月和3月达到高峰</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">优化空间</div>
+                        <p>不同店铺的商品卡表现差异显著，存在优化空间</p>
+                    </div>
+                </div>
+                
+                <h3 class="insights-title" style="margin-top: 30px;">优化建议</h3>
+                <div class="key-points">
+                    <div class="point-card">
+                        <div class="point-title">商品卡优化</div>
+                        <p>对表现较弱的店铺提供商品卡设计、关键词优化等专业支持</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">季节性策略</div>
+                        <p>在第一季度和第四季度增加商品卡推广资源和预算</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">经验分享</div>
+                        <p>组织表现较弱的店铺向轮廓女装旗舰店学习商品卡运营经验</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">载体拓展</div>
+                        <p>在图文载体表现较好的店铺（如轮廓旗舰店）探索更多可能性</p>
+                    </div>
+                    <div class="point-card">
+                        <div class="point-title">数据分析</div>
+                        <p>建立更细致的商品卡转化漏斗分析，持续优化商品卡效果</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <footer>
+            <p>© 2025 轮廓自媒体运营组 | 多维度数据分析报告</p>
+            <p>数据来源：抖音商城 | 报告生成日期：2025年6月23日</p>
+        </footer>
+    </div>
+    
+    <script>
+        // 标签切换功能
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // 移除所有活动状态
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+                
+                // 添加当前活动状态
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(`${tabId}-section`).classList.add('active');
+            });
+        });
+        
+        // 店铺数据
+        const shops = [
+            '吉丘古儿旗舰店', 
+            '轮廓飞聚女装专卖店', 
+            '轮廓服饰专营店', 
+            '轮廓聚如女装专卖店', 
+            '轮廓女装旗舰店', 
+            '轮廓平跃女装专卖店', 
+            '轮廓旗舰店'
+        ];
+        
+        // 初始化所有图表
+        function initCharts() {
+            // 大促活动数据图表
+            initPromotionCharts();
+            
+            // 会员数据图表
+            initMemberCharts();
+            
+            // 商品卡数据图表
+            initProductCharts();
+            
+            // 交易载体图表
+            initChannelCharts();
+        }
+        
+        // 大促活动图表初始化
+        function initPromotionCharts() {
+            // 各活动成交金额大促收益对比
+            new Chart(document.getElementById('revenueChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['2024-618', '2024-七夕', '2024-年终', '2024-双11', '2024-中秋', '2025-38', '2025-618', '2025-情人节', '2025-年货', '2025-新春'],
+                    datasets: [
+                        {
+                            label: '成交金额大促收益(万元)',
+                            data: [106.66, 112.27, 14.19, 137.21, 53.07, 109.03, 28.79, 0, 139.83, 0],
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '报名商品数量',
+                            data: [1683, 1277, 745, 80, 307, 1032, 1314, 1009, 964, 1122],
+                            type: 'line',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 3,
+                            fill: false,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: '成交金额(万元)'
+                            },
+                            beginAtZero: true
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: '报名商品数'
+                            },
+                            beginAtZero: true,
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        if (context.datasetIndex === 0) {
+                                            label += '¥' + context.parsed.y.toFixed(2) + '万';
+                                        } else {
+                                            label += context.parsed.y + '件';
+                                        }
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 活动曝光与成交金额关系
+            const exposureRevenueChart = echarts.init(document.getElementById('exposureRevenueChart'));
+            const exposureOption = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(params) {
+                        return `<b>${params.name}</b><br/>
+                                曝光: ${(params.value[0]/10000).toFixed(1)}万次<br/>
+                                收益: ¥${(params.value[1]/10000).toFixed(1)}万<br/>
+                                商品数: ${params.value[2]}件`;
+                    }
+                },
+                grid: {
+                    left: '5%',
+                    right: '10%',
+                    bottom: '10%',
+                    top: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    name: '商品曝光次数',
+                    nameLocation: 'middle',
+                    nameGap: 30,
+                    axisLabel: {
+                        formatter: '{value}'
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '成交金额大促收益',
+                    nameLocation: 'middle',
+                    nameGap: 40,
+                    axisLabel: {
+                        formatter: '¥{value}'
+                    }
+                },
+                series: [
+                    {
+                        name: '活动数据',
+                        type: 'scatter',
+                        symbolSize: function(val) {
+                            return Math.sqrt(val[2]) * 0.5;
+                        },
+                        data: [
+                            {
+                                value: [9819613, 1066586.42, 1683],
+                                name: '2024抖音商城618好物节'
+                            },
+                            {
+                                value: [2499073, 1122738.42, 1277],
+                                name: '2024抖音商城浪漫七夕节'
+                            },
+                            {
+                                value: [7424722, 141909.26, 745],
+                                name: '2024抖音商城年终狂欢季'
+                            },
+                            {
+                                value: [10201493, 1372072.33, 80],
+                                name: '2024抖音商城双11好物节'
+                            },
+                            {
+                                value: [3988518, 530741.05, 307],
+                                name: '2024抖音商城中秋团圆季'
+                            },
+                            {
+                                value: [4591892, 1090260.73, 1032],
+                                name: '2025抖音商城38好物节'
+                            },
+                            {
+                                value: [6893581, 287893.15, 1314],
+                                name: '2025抖音商城618好物节'
+                            },
+                            {
+                                value: [1951089, 0, 1009],
+                                name: '2025抖音商城浪漫情人节'
+                            },
+                            {
+                                value: [7785732, 1398255.47, 964],
+                                name: '2025抖音商城年货节'
+                            },
+                            {
+                                value: [1990682, 0, 1122],
+                                name: '2025抖音商城新春大集'
+                            }
+                        ],
+                        itemStyle: {
+                            color: function(params) {
+                                const colors = [
+                                    '#5470C6', '#91CC75', '#FAC858', '#EE6666', 
+                                    '#73C0DE', '#3BA272', '#FC8452', '#9A60B4', 
+                                    '#EA7CCC', '#2E4553'
+                                ];
+                                return colors[params.dataIndex];
+                            }
+                        },
+                        label: {
+                            show: true,
+                            formatter: function(params) {
+                                const names = [
+                                    '2024-618', '2024-七夕', '2024-年终', '2024-双11', 
+                                    '2024-中秋', '2025-38', '2025-618', '2025-情人节', 
+                                    '2025-年货', '2025-新春'
+                                ];
+                                return names[params.dataIndex];
+                            },
+                            position: 'top',
+                            fontSize: 12,
+                            fontWeight: 'bold'
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: 14,
+                                fontWeight: 'bold'
+                            }
+                        }
+                    }
+                ]
+            };
+            exposureRevenueChart.setOption(exposureOption);
+            
+            // 店铺大促收益贡献分布
+            new Chart(document.getElementById('storeContributionChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['轮廓服饰专营店', '轮廓女装旗舰店', '吉丘古儿旗舰店', '轮廓平跃女装专卖店', '轮廓旗舰店', '轮廓飞聚女装专卖店', '轮廓聚如女装专卖店'],
+                    datasets: [{
+                        data: [26.8, 24.5, 15.3, 12.7, 8.5, 7.2, 5.0],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(199, 199, 199, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 13
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.parsed}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 点击率与转化率趋势分析
+            const ctrChart = echarts.init(document.getElementById('ctrChart'));
+            const ctrOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        return params[0].name + '<br/>' +
+                               params[0].seriesName + ': ' + (params[0].value * 100).toFixed(2) + '%<br/>' +
+                               params[1].seriesName + ': ' + (params[1].value * 100).toFixed(2) + '%';
+                    }
+                },
+                legend: {
+                    data: ['商品点击率', '点击-支付转化率'],
+                    bottom: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    top: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['2024-618', '2024-七夕', '2024-年终', '2024-双11', '2024-中秋', '2025-38', '2025-618', '2025-情人节', '2025-年货', '2025-新春'],
+                    axisLabel: {
+                        rotate: 45
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value}%'
+                    },
+                    min: 4,
+                    max: 8
+                },
+                series: [
+                    {
+                        name: '商品点击率',
+                        type: 'line',
+                        data: [6.33, 6.27, 5.54, 6.11, 5.99, 5.52, 5.16, 5.45, 5.67, 5.63],
+                        smooth: true,
+                        lineStyle: {
+                            width: 3
+                        },
+                        symbol: 'circle',
+                        symbolSize: 8,
+                        itemStyle: {
+                            color: '#5470C6'
+                        }
+                    },
+                    {
+                        name: '点击-支付转化率',
+                        type: 'line',
+                        data: [1.11, 1.72, 1.60, 1.83, 1.57, 2.28, 2.14, 1.56, 1.75, 1.23],
+                        smooth: true,
+                        lineStyle: {
+                            width: 3
+                        },
+                        symbol: 'circle',
+                        symbolSize: 8,
+                        itemStyle: {
+                            color: '#91CC75'
+                        }
+                    }
+                ]
+            };
+            ctrChart.setOption(ctrOption);
+            
+            // 店铺大促收益排行榜
+            const storeRankingChart = echarts.init(document.getElementById('storeRankingChart'));
+            const storeRankingOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    formatter: function(params) {
+                        return params[0].name + ': ¥' + (params[0].value/10000).toFixed(2) + '万';
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    name: '万元',
+                    axisLabel: {
+                        formatter: '{value} 万'
+                    }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: [
+                        '轮廓聚如女装专卖店',
+                        '轮廓飞聚女装专卖店',
+                        '轮廓旗舰店',
+                        '轮廓平跃女装专卖店',
+                        '吉丘古儿旗舰店',
+                        '轮廓女装旗舰店',
+                        '轮廓服饰专营店'
+                    ].reverse()
+                },
+                series: [
+                    {
+                        name: '大促收益',
+                        type: 'bar',
+                        data: [35.09, 16.02, 25.19, 19.24, 65.99, 73.14, 57.79].map(v => v/100).reverse(),
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                {offset: 0, color: '#83bff6'},
+                                {offset: 0.5, color: '#188df0'},
+                                {offset: 1, color: '#188df0'}
+                            ])
+                        },
+                        label: {
+                            show: true,
+                            position: 'right',
+                            formatter: function(params) {
+                                return '¥' + (params.value * 100).toFixed(1) + '万';
+                            }
+                        }
+                    }
+                ]
+            };
+            storeRankingChart.setOption(storeRankingOption);
+            
+            // 活动效果综合对比雷达图
+            new Chart(document.getElementById('radarChart'), {
+                type: 'radar',
+                data: {
+                    labels: ['成交金额收益', '订单量收益', '曝光量收益', '点击率', '转化率', '参与商品数'],
+                    datasets: [
+                        {
+                            label: '2024双11好物节',
+                            data: [95, 85, 100, 88, 92, 20],
+                            fill: true,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgb(255, 99, 132)',
+                            pointBackgroundColor: 'rgb(255, 99, 132)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(255, 99, 132)'
+                        },
+                        {
+                            label: '2025年货节',
+                            data: [100, 100, 90, 92, 90, 95],
+                            fill: true,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgb(54, 162, 235)',
+                            pointBackgroundColor: 'rgb(54, 162, 235)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(54, 162, 235)'
+                        },
+                        {
+                            label: '2025浪漫情人节',
+                            data: [0, 0, 30, 85, 75, 90],
+                            fill: true,
+                            backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                            borderColor: 'rgb(255, 206, 86)',
+                            pointBackgroundColor: 'rgb(255, 206, 86)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(255, 206, 86)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: {
+                                stepSize: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 会员数据图表初始化
+        function initMemberCharts() {
+            // 各店铺会员成交金额对比
+            new Chart(document.getElementById('memberSalesChart'), {
+                type: 'bar',
+                data: {
+                    labels: shops,
+                    datasets: [{
+                        label: '会员成交金额(元)',
+                        data: [2054311.91, 3351092.15, 6057422.09, 1702383.44, 6338008.5, 3146285.11, 3323137.89],
+                        backgroundColor: 'rgba(41, 128, 185, 0.9)',
+                        borderWidth: 0,
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 35, 126, 0.95)',
+                            padding: 15,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 14
+                            },
+                            callbacks: {
+                                label: function(context) {
+                                    return `¥${(context.raw/10000).toFixed(2)}万`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '¥' + (value/10000).toFixed(0) + '万';
+                                },
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: '成交金额',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 45,
+                                minRotation: 45,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 会员数量与新增会员对比
+            new Chart(document.getElementById('membersChart'), {
+                type: 'bar',
+                data: {
+                    labels: shops,
+                    datasets: [
+                        {
+                            label: '会员总数量',
+                            data: [6663, 2931, 2818, 1304, 8259, 2518, 7197],
+                            backgroundColor: 'rgba(41, 128, 185, 0.85)',
+                            borderWidth: 0,
+                            borderRadius: 4
+                        },
+                        {
+                            label: '新增会员数量',
+                            data: [677, 906, 1988, 806, 1450, 1070, 781],
+                            backgroundColor: 'rgba(46, 204, 113, 0.85)',
+                            borderWidth: 0,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 35, 126, 0.95)',
+                            padding: 15,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw}人`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            title: {
+                                display: true,
+                                text: '会员数量',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 45,
+                                minRotation: 45,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 会员成交金额占比分析
+            new Chart(document.getElementById('ratioChart'), {
+                type: 'radar',
+                data: {
+                    labels: shops,
+                    datasets: [{
+                        label: '会员成交金额占比(%)',
+                        data: [0.688, 0.659, 0.537, 0.644, 0.699, 0.586, 0.713].map(r => r * 100),
+                        backgroundColor: 'rgba(155, 89, 182, 0.2)',
+                        borderColor: 'rgba(155, 89, 182, 1)',
+                        pointBackgroundColor: [
+                            'rgba(41, 128, 185, 0.9)',
+                            'rgba(52, 152, 219, 0.9)',
+                            'rgba(155, 89, 182, 0.9)',
+                            'rgba(231, 76, 60, 0.9)',
+                            'rgba(241, 196, 15, 0.9)',
+                            'rgba(46, 204, 113, 0.9)',
+                            'rgba(230, 126, 34, 0.9)'
+                        ],
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(155, 89, 182, 1)',
+                        pointRadius: 6,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 40,
+                            max: 80,
+                            ticks: {
+                                stepSize: 10,
+                                backdropColor: 'transparent',
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            angleLines: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 35, 126, 0.95)',
+                            padding: 15,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 开卡礼引导成交金额分析
+            new Chart(document.getElementById('giftChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: shops,
+                    datasets: [{
+                        data: [249945.91, 457715.15, 1265017.59, 357968.23, 707363.69, 458646.08, 365194.08],
+                        backgroundColor: [
+                            'rgba(41, 128, 185, 0.9)',
+                            'rgba(52, 152, 219, 0.9)',
+                            'rgba(155, 89, 182, 0.9)',
+                            'rgba(231, 76, 60, 0.9)',
+                            'rgba(241, 196, 15, 0.9)',
+                            'rgba(46, 204, 113, 0.9)',
+                            'rgba(230, 126, 34, 0.9)'
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 6,
+                        hoverOffset: 20
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 35, 126, 0.95)',
+                            padding: 15,
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const total = [249945.91, 457715.15, 1265017.59, 357968.23, 707363.69, 458646.08, 365194.08].reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${context.label}: ¥${(value/10000).toFixed(2)}万 (${percentage}%)`;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 15,
+                                padding: 20,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 积分总量与会员数量关系
+            new Chart(document.getElementById('pointsChart'), {
+                type: 'scatter',
+                data: {
+                    datasets: shops.map((shop, i) => ({
+                        label: shop,
+                        data: [{
+                            x: [6663, 2931, 2818, 1304, 8259, 2518, 7197][i],
+                            y: [11487496, 14830185, 10279145, 2726975, 20330337, 7589101, 23010138][i] / 10000
+                        }],
+                        backgroundColor: [
+                            'rgba(41, 128, 185, 0.9)',
+                            'rgba(52, 152, 219, 0.9)',
+                            'rgba(155, 89, 182, 0.9)',
+                            'rgba(231, 76, 60, 0.9)',
+                            'rgba(241, 196, 15, 0.9)',
+                            'rgba(46, 204, 113, 0.9)',
+                            'rgba(230, 126, 34, 0.9)'
+                        ][i],
+                        pointRadius: 16,
+                        pointHoverRadius: 18
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 35, 126, 0.95)',
+                            padding: 15,
+                            callbacks: {
+                                label: function(context) {
+                                    const shop = context.dataset.label;
+                                    const index = shops.indexOf(shop);
+                                    return [
+                                        `${shop}`,
+                                        `会员数量: ${[6663, 2931, 2818, 1304, 8259, 2518, 7197][index]}人`,
+                                        `积分总量: ${([11487496, 14830185, 10279145, 2726975, 20330337, 7589101, 23010138][index]/10000).toFixed(1)}万`,
+                                        `人均积分: ${Math.round([11487496, 14830185, 10279145, 2726975, 20330337, 7589101, 23010138][index]/[6663, 2931, 2818, 1304, 8259, 2518, 7197][index])}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '会员数量',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '积分总量(万)',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 新会员转化率分析
+            const newBuyerData = [259, 436, 1019, 335, 627, 490, 286];
+            const newMemberData = [677, 906, 1988, 806, 1450, 1070, 781];
+            const conversionRates = shops.map((_, i) => 
+                (newBuyerData[i] / newMemberData[i] * 100).toFixed(1)
+            );
+            
+            new Chart(document.getElementById('conversionRateChart'), {
+                type: 'bar',
+                data: {
+                    labels: shops,
+                    datasets: [{
+                        label: '新会员转化率(%)',
+                        data: conversionRates,
+                        backgroundColor: [
+                            'rgba(41, 128, 185, 0.9)',
+                            'rgba(52, 152, 219, 0.9)',
+                            'rgba(155, 89, 182, 0.9)',
+                            'rgba(231, 76, 60, 0.9)',
+                            'rgba(241, 196, 15, 0.9)',
+                            'rgba(46, 204, 113, 0.9)',
+                            'rgba(230, 126, 34, 0.9)'
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 35, 126, 0.95)',
+                            padding: 15,
+                            callbacks: {
+                                label: function(context) {
+                                    const index = context.dataIndex;
+                                    return `转化率: ${context.raw}% (${newBuyerData[index]}/${newMemberData[index]}人)`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            min: 30,
+                            max: 80,
+                            title: {
+                                display: true,
+                                text: '转化率(%)',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 商品卡数据图表初始化
+        function initProductCharts() {
+            // 各店铺成交金额对比
+            new Chart(document.getElementById('productSalesChart'), {
+                type: 'bar',
+                data: {
+                    labels: shops,
+                    datasets: [{
+                        label: '总成交金额 (¥)',
+                        data: [820219, 583667, 1256035, 278734, 1490524, 540446, 683056],
+                        backgroundColor: 'rgba(67, 97, 238, 0.7)',
+                        borderColor: 'rgba(67, 97, 238, 1)',
+                        borderWidth: 1,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '¥' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '¥' + (value/1000).toFixed(0) + 'K';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 月度成交金额趋势
+            new Chart(document.getElementById('salesTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: ['2503月', '2504月', '2505月'],
+                    datasets: [
+                        {
+                            label: '吉丘古儿旗舰店', 
+                            data: [179552, 217179, 207128], 
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: '轮廓女装旗舰店', 
+                            data: [439242, 351186, 360289], 
+                            borderColor: '#4361ee',
+                            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: '轮廓服饰专营店', 
+                            data: [456504, 312724, 351038], 
+                            borderColor: '#2ecc71',
+                            backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ¥' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '¥' + (value/1000).toFixed(0) + 'K';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 各店铺客单价对比
+            new Chart(document.getElementById('priceChart'), {
+                type: 'bar',
+                data: {
+                    labels: shops,
+                    datasets: [{
+                        label: '平均客单价 (¥)',
+                        data: [1350, 1223, 1468, 998, 1415, 1219, 1074],
+                        backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 1,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '¥' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 点击-成交转化率对比
+            new Chart(document.getElementById('productConversionChart'), {
+                type: 'bar',
+                data: {
+                    labels: shops,
+                    datasets: [{
+                        label: '平均转化率 (%)',
+                        data: [2.98, 3.93, 5.70, 3.53, 2.98, 4.17, 4.33],
+                        backgroundColor: 'rgba(247, 37, 133, 0.7)',
+                        borderColor: 'rgba(247, 37, 133, 1)',
+                        borderWidth: 1,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw.toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 商品卡点击率对比
+            new Chart(document.getElementById('clickRateChart'), {
+                type: 'bar',
+                data: {
+                    labels: shops,
+                    datasets: [{
+                        label: '平均点击率 (%)',
+                        data: [8.66, 11.15, 11.43, 10.29, 10.50, 10.93, 10.07],
+                        backgroundColor: 'rgba(76, 201, 240, 0.7)',
+                        borderColor: 'rgba(76, 201, 240, 1)',
+                        borderWidth: 1,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw.toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 转化率与成交金额关系
+            new Chart(document.getElementById('conversionSalesChart'), {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: '店铺数据',
+                        data: [
+                            {x: 2.98, y: 820219, store: '吉丘古儿旗舰店'},
+                            {x: 3.93, y: 583667, store: '轮廓飞聚女装专卖店'},
+                            {x: 5.70, y: 1256035, store: '轮廓服饰专营店'},
+                            {x: 3.53, y: 278734, store: '轮廓聚如女装专卖店'},
+                            {x: 2.98, y: 1490524, store: '轮廓女装旗舰店'},
+                            {x: 4.17, y: 540446, store: '轮廓平跃女装专卖店'},
+                            {x: 4.33, y: 683056, store: '轮廓旗舰店'}
+                        ],
+                        backgroundColor: 'rgba(67, 97, 238, 0.8)',
+                        pointRadius: 10,
+                        pointHoverRadius: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 35, 126, 0.95)',
+                            padding: 15,
+                            callbacks: {
+                                label: function(context) {
+                                    const point = context.raw;
+                                    return [
+                                        `店铺: ${point.store}`,
+                                        `转化率: ${point.x.toFixed(2)}%`,
+                                        `成交金额: ¥${point.y.toLocaleString()}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '点击-成交转化率 (%)'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '成交金额 (¥)'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '¥' + (value/1000).toFixed(0) + 'K';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 交易载体图表初始化
+        function initChannelCharts() {
+            // 模拟数据
+            const months = ['2024-06', '2024-07', '2024-08', '2024-09', '2024-10', '2024-11', 
+                           '2024-12', '2025-01', '2025-02', '2025-03', '2025-04', '2025-05'];
+            
+            // 商品卡交易趋势数据（所有店铺每月总和）
+            const productCardData = [1230000, 1180000, 1120000, 1260000, 1350000, 1320000, 
+                                   1480000, 1650000, 1600000, 1840000, 1680000, 1580000];
+            
+            // 各交易载体占比
+            const channelData = {
+                labels: ['直播', '商品卡', '图文', '短视频', '未知'],
+                data: [84.4, 12.2, 0.03, 0.07, 3.3],
+                colors: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+            };
+            
+            // 各载体月度趋势
+            const channelTrendData = {
+                live: [4560000, 4820000, 3520000, 3450000, 3360000, 3580000, 
+                      3080000, 3150000, 2850000, 4150000, 3180000, 2610000],
+                productCard: productCardData,
+                graphic: [2300, 4900, 1100, 1000, 1000, 100, 300, 8300, 3000, 5100, 4900, 4800],
+                shortVideo: [14600, 5500, 4400, 12000, 11000, 35000, 62000, 32000, 5000, 14000, 4500, 30000],
+                unknown: [56000, 63000, 45000, 55000, 78000, 55000, 72000, 87000, 83000, 74000, 64000, 64000]
+            };
+            
+            // 店铺商品卡表现
+            const storeData = {
+                labels: months,
+                datasets: [
+                    {
+                        label: '轮廓女装旗舰店',
+                        data: [276378, 245377, 211356, 354714, 358149, 346795, 
+                              509959, 581545, 560157, 438243, 351186, 359390],
+                        borderColor: '#FF6384',
+                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                        tension: 0.3
+                    },
+                    {
+                        label: '轮廓服饰专营店',
+                        data: [0, 26933, 131671, 202431, 186953, 141325, 
+                              190051, 284934, 297732, 455106, 311421, 349872],
+                        borderColor: '#36A2EB',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        tension: 0.3
+                    },
+                    {
+                        label: '轮廓旗舰店',
+                        data: [315713, 301502, 161691, 214208, 187530, 277066, 
+                              326447, 221299, 180189, 258439, 244693, 266098],
+                        borderColor: '#FFCE56',
+                        backgroundColor: 'rgba(255, 206, 86, 0.1)',
+                        tension: 0.3
+                    },
+                    {
+                        label: '吉丘古儿旗舰店',
+                        data: [210655, 189652, 153659, 147555, 246716, 267414, 
+                              438057, 320226, 192997, 179552, 217179, 207128],
+                        borderColor: '#4BC0C0',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        tension: 0.3
+                    }
+                ]
+            };
+            
+            // 季节性分析数据
+            const seasonalData = {
+                labels: ['6月', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月'],
+                data: productCardData
+            };
+            
+            // 商品卡整体趋势图
+            new Chart(document.getElementById('productCardTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: '商品卡交易总额 (元)',
+                        data: productCardData,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#2980b9',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `¥${(context.parsed.y/10000).toFixed(2)}万`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '月份'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '交易金额 (元)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '¥' + (value/10000).toFixed(0) + '万';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 交易载体占比饼图
+            new Chart(document.getElementById('channelShareChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: channelData.labels,
+                    datasets: [{
+                        data: channelData.data,
+                        backgroundColor: channelData.colors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.parsed}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 交易载体趋势图
+            new Chart(document.getElementById('channelTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: '直播',
+                            data: channelTrendData.live,
+                            borderColor: '#FF6384',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3
+                        },
+                        {
+                            label: '商品卡',
+                            data: channelTrendData.productCard,
+                            borderColor: '#36A2EB',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ¥${(context.parsed.y/10000).toFixed(2)}万`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '月份'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '交易金额 (元)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '¥' + (value/10000).toFixed(0) + '万';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 店铺商品卡表现对比
+            new Chart(document.getElementById('storeComparisonChart'), {
+                type: 'line',
+                data: storeData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ¥${context.parsed.y.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '月份'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '交易金额 (元)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '¥' + (value/10000).toFixed(1) + '万';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 商品卡季节性分析
+            new Chart(document.getElementById('seasonalChart'), {
+                type: 'bar',
+                data: {
+                    labels: seasonalData.labels,
+                    datasets: [{
+                        label: '商品卡交易额',
+                        data: seasonalData.data,
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)', 'rgba(54, 162, 235, 0.7)', 'rgba(54, 162, 235, 0.7)',
+                            'rgba(54, 162, 235, 0.7)', 'rgba(54, 162, 235, 0.7)', 'rgba(54, 162, 235, 0.7)',
+                            'rgba(54, 162, 235, 0.9)', 'rgba(54, 162, 235, 0.9)', 'rgba(54, 162, 235, 0.9)',
+                            'rgba(54, 162, 235, 0.9)', 'rgba(54, 162, 235, 0.7)', 'rgba(54, 162, 235, 0.7)'
+                        ],
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `¥${(context.parsed.y/10000).toFixed(2)}万`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '月份'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '交易金额 (元)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '¥' + (value/10000).toFixed(0) + '万';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 页面加载完成后初始化所有图表
+        window.onload = function() {
+            initCharts();
+            
+            // 响应式调整
+            window.addEventListener('resize', function() {
+                // 重新设置ECharts图表大小
+                const echartInstances = [
+                    document.getElementById('exposureRevenueChart'),
+                    document.getElementById('ctrChart'),
+                    document.getElementById('storeRankingChart')
+                ].filter(el => el).map(el => echarts.getInstanceByDom(el));
+                
+                echartInstances.forEach(chart => {
+                    if (chart) {
+                        chart.resize();
+                    }
+                });
+            });
+        };
+    </script>
+</body>
+</html>
